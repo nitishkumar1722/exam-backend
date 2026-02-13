@@ -5,13 +5,18 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
 router.post("/register", async (req, res) => {
-  const { email, password } = req.body;
+  try {
+    const { email, password } = req.body;
+    const existing = await Teacher.findOne({ email });
+    if (existing) return res.status(400).json({ message: "Email already registered" });
 
-  const hashed = await bcrypt.hash(password, 10);
-  const teacher = new Teacher({ email, password: hashed });
-  await teacher.save();
-
-  res.json({ message: "Registered Successfully" });
+    const hashed = await bcrypt.hash(password, 10);
+    const teacher = new Teacher({ email, password: hashed });
+    await teacher.save();
+    res.json({ message: "Registered Successfully" });
+  } catch (err) {
+    res.status(500).json({ message: "Server Error" });
+  }
 });
 
 router.post("/login", async (req, res) => {
