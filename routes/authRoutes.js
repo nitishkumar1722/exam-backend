@@ -28,3 +28,10 @@ router.post("/login", async (req, res) => {
 });
 
 module.exports = router;
+
+router.post("/reset", async (req, res) => {
+  const { email, newPassword } = req.body;
+  const hashed = await bcrypt.hash(newPassword, 10);
+  await Teacher.findOneAndUpdate({ email }, { password: hashed });
+  res.json({ message: "Password Updated" });
+});
