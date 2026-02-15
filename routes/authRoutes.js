@@ -13,7 +13,7 @@ router.get("/register", async (req, res) => {
     const existing = await Teacher.findOne({ email });
     if (existing) return res.status(400).json({ message: "Email already registered" });
 
-    const hashed = await bcrypt.hash(password, 10);
+    //const hashed = await bcrypt.hash(password, 10);
     const teacher = new Teacher({ email, password: hashed });
     await teacher.save();
     res.json({ message: "Registered Successfully via GET" });
