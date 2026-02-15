@@ -18,7 +18,7 @@ router.get("/register", async (req, res) => {
     await teacher.save();
 
     res.json({ 
-        message: "apka Registration Successfully ho gya (because I LOVE YOU)",
+        message: " Registration is Successfully done.",
         url_check: "..."
     });
   } catch (err) {
