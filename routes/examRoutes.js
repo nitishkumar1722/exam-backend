@@ -62,6 +62,18 @@ router.get("/get-exam", async (req, res) => {
     }
 });
 
-
+// --- GET ASSIGNED EXAM (GET) ---
+router.get("/get-assigned", async (req, res) => {
+    try {
+        const { examId } = req.query;
+        // Exam dhoondo
+        const exam = await Exam.findById(examId);
+        if (!exam) return res.status(404).json({ msg: "Exam nahi mila!" });
+        
+        res.json(exam);
+    } catch (err) {
+        res.status(500).json({ msg: "Server Error: " + err.message });
+    }
+});
 
 module.exports = router; 
