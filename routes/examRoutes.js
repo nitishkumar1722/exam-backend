@@ -1,37 +1,35 @@
 const express = require("express");
 const router = express.Router();
-// Yahan hum authentication middleware ka use karenge jo aapke token ko verify karega
-const jwt = require("jsonwebtoken");
+const Exam = require("../models/Exam");
 
-// Simple verification logic
-const verifyToken = (req, res, next) => {
-  const token = req.headers["authorization"]?.split(" ")[1];
-  if (!token) return res.status(403).json({ message: "No token provided" });
+// --- CREATE EXAM (GET) ---
+router.get("/create", async (req, res) => {
+    try {
+        const { examName, duration, totalMarks, teacherEmail } = req.query;
+        
+        const newExam = new Exam({ 
+            examName, 
+            duration, 
+            totalMarks, 
+            teacherEmail // Taaki pata chale kis teacher ne banaya hai
+        });
 
-  jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
-    if (err) return res.status(401).json({ message: "Unauthorized" });
-    req.userId = decoded.id;
-    next();
-  });
-};
-
-router.post("/create", verifyToken, async (req, res) => {
-  try {
-    const { title, duration } = req.body;
-    // Abhi ke liye success message bhej rahe hain
-    res.json({ message: `Exam '${title}' created successfully!` });
-  } catch (err) {
-    res.status(500).json({ message: "Server Error" });
-  }
+        await newExam.save();
+        res.json({ message: "Exam Created! Check URL and DB." });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
 });
 
-router.post("/add-student", verifyToken, async (req, res) => {
-  try {
-    const { name, reg } = req.body;
-    res.json({ message: `Student ${name} added to the exam list.` });
-  } catch (err) {
-    res.status(500).json({ message: "Server Error" });
-  }
+// --- MY EXAMS (GET) ---
+router.get("/my-exams", async (req, res) => {
+    try {
+        const { teacherEmail } = req.query;
+        const exams = await Exam.find({ teacherEmail });
+        res.json(exams);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
 });
 
 module.exports = router;
