@@ -5,6 +5,13 @@ const ExamSchema = new mongoose.Schema({
     duration: { type: String, required: true },
     totalMarks: { type: String, required: true },
     teacherEmail: { type: String, required: true }
+    questions: [
+        {
+            question: String,
+            options: [String],
+            answer: String
+        }
+    ]
 });
 
 
