@@ -62,17 +62,17 @@ router.get("/get-exam", async (req, res) => {
     }
 });
 
-// --- GET ASSIGNED EXAM (GET) ---
-router.get("/get-assigned", async (req, res) => {
+// Student ke liye assigned exam fetch karna (GET)
+router.get("/assigned-exam", async (req, res) => {
     try {
         const { examId } = req.query;
-        // Exam dhoondo
+        if (!examId || examId === "undefined") {
+            return res.status(400).json({ msg: "Student ko koi exam assigned nahi hai!" });
+        }
         const exam = await Exam.findById(examId);
-        if (!exam) return res.status(404).json({ msg: "Exam nahi mila!" });
-        
         res.json(exam);
     } catch (err) {
-        res.status(500).json({ msg: "Server Error: " + err.message });
+        res.status(500).json({ msg: "Error: " + err.message });
     }
 });
 
