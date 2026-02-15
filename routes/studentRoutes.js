@@ -1,24 +1,19 @@
 const express = require("express");
 const router = express.Router();
+const Student = require("../models/Student");
 
-router.post("/login", async (req, res) => {
-  const { name, reg } = req.body;
-  
-  // Abhi ke liye simple check: agar name aur reg provide kiya hai toh login success
-  if (name && reg) {
-    res.json({ success: true, message: "Student logged in" });
-  } else {
-    res.status(400).json({ success: false, message: "Invalid credentials" });
-  }
-});
-
-router.get("/exams", async (req, res) => {
-  // Demo data for frontend testing
-  const exams = [
-    { title: "Mathematics Quiz", duration: 30 },
-    { title: "Science Midterm", duration: 60 }
-  ];
-  res.json(exams);
+// --- ADD STUDENT (GET) ---
+router.get("/add", async (req, res) => {
+    try {
+        const { name, rollNo, email, examId } = req.query;
+        
+        const newStudent = new Student({ name, rollNo, email, examId });
+        await newStudent.save();
+        
+        res.json({ message: "Student Added via GET!" });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
 });
 
 module.exports = router;
