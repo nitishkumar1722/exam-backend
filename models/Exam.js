@@ -7,5 +7,6 @@ const ExamSchema = new mongoose.Schema({
     teacherEmail: { type: String, required: true }
 });
 
+
 module.exports = mongoose.model("Exam", ExamSchema, "exams");
 
