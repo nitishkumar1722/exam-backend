@@ -48,4 +48,20 @@ router.get("/my-exams", async (req, res) => {
     }
 });
 
+
+// --- GET SINGLE EXAM FOR STUDENT (GET) ---
+router.get("/get-exam", async (req, res) => {
+    try {
+        const { examId } = req.query;
+        const exam = await Exam.findById(examId);
+        if (!exam) return res.status(404).json({ msg: "Exam nahi mila!" });
+        
+        res.json(exam);
+    } catch (err) {
+        res.status(500).json({ msg: "Server Error: " + err.message });
+    }
+});
+
+
+
 module.exports = router;
