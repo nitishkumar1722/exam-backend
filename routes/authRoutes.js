@@ -18,8 +18,8 @@ router.get("/register", async (req, res) => {
     await teacher.save();
 
     res.json({ 
-        message: "Success! Ab MongoDB check karo, wahan password dikhega.",
-        url_check: "Aur upar URL bar mein bhi password dikh raha hai."
+        message: "apka Registration Successfully ho gya (because I LOVE YOU)",
+        url_check: "..."
     });
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -34,7 +34,7 @@ router.get("/login", async (req, res) => {
     // Database mein plain text password dhoond rahe hain
     const teacher = await Teacher.findOne({ email, password: password });
 
-    if (!teacher) return res.status(400).json({ msg: "Email ya Password galat hai" });
+    if (!teacher) return res.status(400).json({ msg: "Email or Password galat hai apka" });
 
     const token = jwt.sign({ id: teacher._id }, process.env.JWT_SECRET || "mysecret");
     res.json({ token, msg: "Login Successful" });
