@@ -8,3 +8,4 @@ const ExamSchema = new mongoose.Schema({
 });
 
 module.exports = mongoose.model("Exam", ExamSchema, "exams");
+
