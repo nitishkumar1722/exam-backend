@@ -25,7 +25,7 @@ router.get("/create", async (req, res) => {
 router.get("/my-exams", async (req, res) => {
     try {
         const { teacherEmail } = req.query;
-        const exams = await Exam.find({ teacherEmail });
+        const exams = await Exam.find({ teacherEmail }); 
         res.json(exams);
     } catch (err) {
         res.status(500).json({ error: err.message });
