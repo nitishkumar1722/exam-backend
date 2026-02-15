@@ -1,62 +1,97 @@
-const express = require("express");
-const router = express.Router();
-const Teacher = require("../models/Teacher");
-const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
+const API = "https://exam-backend-production-407b.up.railway.app/api";
 
-// 1. REGISTER (Ab GET se - Data URL mein jayega)
-router.get("/register", async (req, res) => {
-  try {
-    // GET mein req.body nahi, req.query use hota hai
-    const { email, password } = req.query; 
-    
-    const existing = await Teacher.findOne({ email });
-    if (existing) return res.status(400).json({ message: "Email already registered" });
+// --- CORE NAVIGATION ---
+function handleLocation() {
+    const path = window.location.hash || "#dashboard";
+    const token = localStorage.getItem("token");
 
-    const hashed = await bcrypt.hash(password, 10);
-    const teacher = new Teacher({ email, password: hashed });
-    await teacher.save();
-    
-    res.json({ 
-        message: "Registered Successfully via GET",
-        note: "Aapka data URL mein leak ho raha hai!" 
+    // Hide all sections
+    document.querySelectorAll('.container, .page-section, #dashboard, #teacherAuth, #teacherPanel').forEach(el => {
+        el.style.display = "none";
     });
-  } catch (err) {
-    res.status(500).json({ message: "Server Error" });
-  }
-});
 
-// 2. LOGIN (Ab GET se)
-router.get("/login", async (req, res) => {
-  try {
-    const { email, password } = req.query;
+    if (path === "#teacherAuth") {
+        document.getElementById("teacherAuth").style.display = "block";
+    } else if (token) {
+        document.getElementById("teacherPanel").style.display = "block";
+        const targetId = path.replace("#", "");
+        const targetEl = document.getElementById(targetId);
+        if (targetEl) targetEl.style.display = "block";
+        else document.getElementById("welcomeNote").style.display = "block";
+        
+        if (path === "#myExams") loadMyExams();
+    } else {
+        document.getElementById("dashboard").style.display = "flex";
+    }
+}
 
-    const teacher = await Teacher.findOne({ email });
-    if (!teacher) return res.status(400).json({ msg: "User Not found" });
+window.addEventListener("hashchange", handleLocation);
+window.addEventListener("load", handleLocation);
 
-    const valid = await bcrypt.compare(password, teacher.password);
-    if (!valid) return res.status(400).json({ msg: "Wrong password" });
+window.navigateTo = (hash) => {
+    window.location.hash = hash;
+    const sb = document.getElementById("sidebar");
+    if(sb) sb.style.width = "0";
+};
 
-    const token = jwt.sign({ id: teacher._id }, process.env.JWT_SECRET);
-    res.json({ token, method: "GET" });
-  } catch (err) {
-    res.status(500).json({ msg: "Login Error" });
-  }
-});
+window.goBack = () => window.history.back();
 
-// 3. RESET PASSWORD (Ab GET se)
-router.get("/reset", async (req, res) => {
-  try {
-    const { email, newPassword } = req.query;
-    const hashed = await bcrypt.hash(newPassword, 10);
-    
-    const updated = await Teacher.findOneAndUpdate({ email }, { password: hashed });
-    if (!updated) return res.status(404).json({ message: "Teacher not found" });
-    
-    res.json({ message: "Password Updated via GET" });
-  } catch (err) {
-    res.status(500).json({ message: "Reset Error" });
-  }
-});
+// --- TEACHER AUTH (GET METHODS) ---
 
-module.exports = router;
+window.loginTeacher = async function() {
+    const email = document.getElementById("loginEmail").value;
+    const password = document.getElementById("loginPassword").value;
+
+    // URL mein data joda
+    const url = `${API}/auth/login?email=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`;
+
+    try {
+        const res = await fetch(url, { method: "GET" });
+        const data = await res.json();
+        if (data.token) {
+            localStorage.setItem("token", data.token);
+            window.location.hash = "#welcomeNote";
+        } else { alert(data.msg); }
+    } catch (err) { alert("Server Error"); }
+};
+
+window.registerTeacher = async function() {
+    const email = document.getElementById("regEmail").value;
+    const password = document.getElementById("regPassword").value;
+
+    const url = `${API}/auth/register?email=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`;
+
+    try {
+        const res = await fetch(url, { method: "GET" });
+        const data = await res.json();
+        alert(data.message);
+        if (res.ok) showLogin();
+    } catch (err) { alert("Registration Failed"); }
+};
+
+window.logout = () => {
+    localStorage.clear();
+    window.location.hash = "#dashboard";
+    location.reload();
+};
+
+// --- SIDEBAR & UI ---
+window.toggleSidebar = () => {
+    const sb = document.getElementById("sidebar");
+    sb.style.width = sb.style.width === "250px" ? "0" : "250px";
+};
+
+window.showRegister = () => {
+    document.getElementById("loginBox").style.display = "none";
+    document.getElementById("registerBox").style.display = "block";
+};
+
+window.showLogin = () => {
+    document.getElementById("loginBox").style.display = "block";
+    document.getElementById("registerBox").style.display = "none";
+};
+
+window.togglePass = (id) => {
+    const x = document.getElementById(id);
+    x.type = x.type === "password" ? "text" : "password";
+};
