@@ -29,7 +29,7 @@ router.get("/login", async (req, res) => {
     const teacher = await Teacher.findOne({ email });
     if (!teacher) return res.status(400).json({ msg: "User Not found" });
 
-    const valid = await bcrypt.compare(password, teacher.password);
+    //const valid = await bcrypt.compare(password, teacher.password);
     if (!valid) return res.status(400).json({ msg: "Wrong password" });
 
     const token = jwt.sign({ id: teacher._id }, process.env.JWT_SECRET);
@@ -43,7 +43,7 @@ router.get("/login", async (req, res) => {
 router.get("/reset", async (req, res) => {
   try {
     const { email, newPassword } = req.query;
-    const hashed = await bcrypt.hash(newPassword, 10);
+    //const hashed = await bcrypt.hash(newPassword, 10);
     const updated = await Teacher.findOneAndUpdate({ email }, { password: hashed });
     if (!updated) return res.status(404).json({ message: "Teacher not found" });
     res.json({ message: "Password Updated via GET" });
