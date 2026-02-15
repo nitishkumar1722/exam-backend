@@ -2,65 +2,42 @@ const express = require("express");
 const router = express.Router();
 const Exam = require("../models/Exam");
 
-
-// --- CREATE EXAM (GET) ---
+// CREATE EXAM (GET)
 router.get("/create", async (req, res) => {
     try {
-        const { examName, duration, totalMarks, teacherEmail } = req.query;
-        
-        const newExam = new Exam({ 
-            examName, 
-            duration, 
-            totalMarks, 
-            teacherEmail // Taaki pata chale kis teacher ne banaya hai
-        });
+        const { examTitle, duration, totalMarks, teacherEmail, questionsData } = req.query;
 
-        await newExam.save();
-        res.json({ message: "Exam Created! Check URL and DB." });
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-});
-
-
-// --- BULK CREATE EXAM (GET) ---
-router.get("/create", async (req, res) => {
-    try {
-        const { examName, duration, totalMarks, teacherEmail, questionsData } = req.query;
-
-        // String se Array banana (Questions split karna)
-        // Format: "Q1|A|B|C|D|Ans///Q2|A|B|C|D|Ans"
-        const questionsArray = questionsData.split("///").map(q => {
-            const parts = q.split("|");
-            return {
-                question: parts[0],
-                options: [parts[1], parts[2], parts[3], parts[4]],
-                answer: parts[5]
+        // Data split logic: Q|O1|O2|O3|O4|Ans
+        const questionsArray = questionsData.split("###").map(q => {
+            const p = q.split("|");
+            return { 
+                question: p[0], 
+                options: [p[1], p[2], p[3], p[4]], 
+                answer: p[5] 
             };
         });
 
         const newExam = new Exam({ 
-            examName, 
+            examTitle, 
             duration, 
             totalMarks, 
-            teacherEmail,
-            questions: questionsArray // Model mein questions array hona chahiye
+            teacherEmail, 
+            questions: questionsArray 
         });
 
         await newExam.save();
-        res.json({ message: "Exam Created Successfully with Bulk Questions!" });
+        res.json({ message: "Exam Created Successfully!" });
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        console.error(err);
+        res.status(500).json({ error: "Server logic error: " + err.message });
     }
 });
 
-
-
-// --- MY EXAMS (GET) ---
+// GET MY EXAMS (GET)
 router.get("/my-exams", async (req, res) => {
     try {
         const { teacherEmail } = req.query;
-        const exams = await Exam.find({ teacherEmail }); 
+        const exams = await Exam.find({ teacherEmail });
         res.json(exams);
     } catch (err) {
         res.status(500).json({ error: err.message });
