@@ -7,7 +7,11 @@ router.get("/create", async (req, res) => {
     try {
         const { examTitle, duration, totalMarks, teacherEmail, questionsData } = req.query;
 
-        // Data split logic: Q|O1|O2|O3|O4|Ans
+        if (!questionsData) {
+            return res.status(400).json({ error: "Questions data missing!" });
+        }
+
+        // Data split: Q|O1|O2|O3|O4|Ans separates by ###
         const questionsArray = questionsData.split("###").map(q => {
             const p = q.split("|");
             return { 
@@ -28,12 +32,12 @@ router.get("/create", async (req, res) => {
         await newExam.save();
         res.json({ message: "Exam Created Successfully!" });
     } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: "Server logic error: " + err.message });
+        console.error("Backend Error:", err);
+        res.status(500).json({ error: err.message });
     }
 });
 
-// GET MY EXAMS (GET)
+// MY EXAMS (GET)
 router.get("/my-exams", async (req, res) => {
     try {
         const { teacherEmail } = req.query;
