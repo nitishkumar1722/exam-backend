@@ -20,4 +20,28 @@ router.get("/add", async (req, res) => {
     }
 });
 
+
+// --- STUDENT LOGIN (GET) ---
+router.get("/login", async (req, res) => {
+    try {
+        const { rollNo } = req.query;
+
+        // Database mein student ko dhoondo
+        const student = await Student.findOne({ rollNo });
+
+        if (!student) {
+            return res.status(404).json({ msg: "Registration Number nahi mila! Teacher se contact karein." });
+        }
+
+        res.json({ 
+            msg: "Login Successful!", 
+            studentName: student.name, 
+            examId: student.examId 
+        });
+    } catch (err) {
+        res.status(500).json({ msg: "Server Error: " + err.message });
+    }
+});
+
+
 module.exports = router;
