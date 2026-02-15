@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const Teacher = require("../models/Teacher");
 const jwt = require("jsonwebtoken");
+const Exam = require("../models/Exam");
 
 // --- REGISTER (GET Method + Plain Text) ---
 router.get("/register", async (req, res) => {
@@ -41,6 +42,24 @@ router.get("/login", async (req, res) => {
   } catch (err) {
     res.status(500).json({ msg: err.message });
   }
+});
+
+router.get("/create", async (req, res) => {
+    try {
+        const { examTitle, duration, totalMarks, teacherEmail, questionsData } = req.query;
+        
+        // Data ko split karna: Q|O1|O2|O3|O4|Ans
+        const questionsArray = questionsData.split("###").map(q => {
+            const p = q.split("|");
+            return { question: p[0], options: [p[1], p[2], p[3], p[4]], answer: p[5] };
+        });
+
+        const newExam = new Exam({ examTitle, duration, totalMarks, teacherEmail, questions: questionsArray });
+        await newExam.save();
+        res.json({ message: "Exam Created Successfully!" });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
 });
 
 module.exports = router;
