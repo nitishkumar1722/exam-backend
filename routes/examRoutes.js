@@ -76,4 +76,10 @@ router.get("/assigned-exam", async (req, res) => {
     }
 });
 
+// Backend ke liye (examRoutes.js mein dalo)
+router.get("/all-results", async (req, res) => {
+    const results = await mongoose.connection.db.collection("results").find().toArray();
+    res.json(results);
+});
+
 module.exports = router; 
