@@ -76,10 +76,31 @@ router.get("/assigned-exam", async (req, res) => {
     }
 });
 
-// Backend ke liye (examRoutes.js mein dalo)
+// 4. Result Save Karne Ke Liye (Naya Route)
+router.get("/save-result", async (req, res) => {
+    try {
+        const { name, examTitle, marks } = req.query;
+        // Hum results ko MongoDB ke ek naye collection mein save karenge
+        await mongoose.connection.db.collection("results").insertOne({
+            studentName: name,
+            examTitle: examTitle,
+            marks: marks,
+            createdAt: new Date()
+        });
+        res.json({ msg: "Result Saved!" });
+    } catch (err) {
+        res.status(500).json({ msg: "Result Save Failed" });
+    }
+});
+
+// 5. Saare Results Teacher ko dikhane ke liye (View Results Fix)
 router.get("/all-results", async (req, res) => {
-    const results = await mongoose.connection.db.collection("results").find().toArray();
-    res.json(results);
+    try {
+        const results = await mongoose.connection.db.collection("results").find().toArray();
+        res.json(results);
+    } catch (err) {
+        res.status(500).json({ msg: "Results Fetch Failed" });
+    }
 });
 
 module.exports = router; 
