@@ -1,6 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const Exam = require("../models/Exam");
+const mongoose = require("mongoose");
+
 
 router.get("/create", async (req, res) => {
     try {
@@ -89,7 +91,7 @@ router.get("/save-result", async (req, res) => {
         });
         res.json({ msg: "Result Saved!" });
     } catch (err) {
-        res.status(500).json({ msg: "Result Save Failed" });
+        res.status(500).json({ msg: "Server Error" });
     }
 });
 
