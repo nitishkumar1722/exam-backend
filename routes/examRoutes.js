@@ -12,16 +12,15 @@ router.get("/create", async (req, res) => {
             return res.status(400).json({ msg: "Questions data gayab hai bhai!" });
         }
 
-        // Parsing logic: Har question line break se alag hai
-        const questionsArray = questionsData.split("###").map(q => {
-            const p = q.split("|");
-            // Agar format galat hai toh skip ya handle karo
-            return { 
-                question: p[0] || "No Question", 
-                options: [p[1] || "", p[2] || "", p[3] || "", p[4] || ""], 
-                answer: p[5] || "" 
-            };
-        });
+      // Backend logic (examRoutes.js mein)
+const qArray = questionsData.split("###").map(line => {
+    const parts = line.split("|");
+    return {
+        question: parts[0],
+        options: [parts[1], parts[2], parts[3], parts[4]],
+        correctOption: parts[5] // Ye 1, 2, 3, ya 4 save hoga
+    };
+});
 
         const newExam = new Exam({ 
             examTitle, 
